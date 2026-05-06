@@ -4,6 +4,7 @@ class CcStatuslineCli < Formula
   url "https://github.com/tenondecrpc/cc-statusline/archive/refs/tags/v0.2.14.tar.gz"
   sha256 "734c22b13fbb1f33bcba891953ca6f138aefb3606573cc19cc0558a43bef0810"
   license "MIT"
+  revision 1
 
   depends_on "jq"
 
@@ -98,28 +99,21 @@ class CcStatuslineCli < Formula
     chmod 0755, bin/"cc-statusline"
   end
 
-  def post_install
-    # Wire up ~/.claude/settings.json automatically. --keep-existing preserves
-    # a user's custom statusLine; they can replace it with `cc-statusline
-    # configure --force`. CCSL_SKIP_WRAPPER=1 prevents install.sh from creating
-    # its own ~/.local/bin/cc-statusline shim, since brew already owns
-    # bin/cc-statusline. Failures are non-fatal: brew install still succeeds
-    # and the user can run `cc-statusline configure` manually.
-    with_env CCSL_INSTALL_DIR: opt_libexec.to_s, CCSL_SKIP_WRAPPER: "1" do
-      system "bash", libexec/"install.sh", "--keep-existing", "--non-interactive"
-    end
-  end
+  # post_install is intentionally omitted: macOS TCC blocks Homebrew's
+  # post_install from writing anywhere under ~/.claude/, so automatic
+  # settings.json wiring is not possible from a brew install. Users must
+  # run `cc-statusline configure` themselves after installing.
 
   def caveats
     <<~EOS
-      cc-statusline has been wired into ~/.claude/settings.json pointing at:
+      To finish setup, wire cc-statusline into Claude Code:
+        cc-statusline configure
+
+      That writes ~/.claude/settings.json with a statusLine pointing at:
         #{opt_libexec}/statusline.sh
 
-      If you already had a custom statusLine, it was kept. Replace it with:
-        cc-statusline configure --force
-
-      If automatic wiring did not run (post-install was skipped), run:
-        cc-statusline configure
+      Use `--keep-existing` to preserve a custom statusLine, or `--force`
+      to replace one.
 
       Edit your preset:
         ~/.config/cc-statusline/config.json
