@@ -1,10 +1,9 @@
 class CcStatuslineCli < Formula
   desc "Configurable statusline command for Claude Code"
   homepage "https://github.com/tenondecrpc/cc-statusline"
-  url "https://github.com/tenondecrpc/cc-statusline/archive/refs/tags/v0.2.12.tar.gz"
-  sha256 "ab7c3490083393bf76801e3b3363e02c66a322a45691839fc1ab62189085fba7"
+  url "https://github.com/tenondecrpc/cc-statusline/archive/refs/tags/v0.2.13.tar.gz"
+  sha256 "dfaeadbe6a69358a0e1fe00e9980287aa7ad92fdc425dc35e952112aedf63037"
   license "MIT"
-  revision 1
 
   depends_on "jq"
 
@@ -99,24 +98,16 @@ class CcStatuslineCli < Formula
     chmod 0755, bin/"cc-statusline"
   end
 
-  def post_install
-    # Wire up ~/.claude/settings.json automatically. Use --keep-existing so a user's
-    # custom statusLine is preserved; they can replace it with `cc-statusline
-    # configure --force`. CCSL_SKIP_WRAPPER=1 prevents install.sh from creating its own
-    # ~/.local/bin/cc-statusline shim, since brew already owns bin/cc-statusline.
-    with_env CCSL_INSTALL_DIR: opt_libexec.to_s, CCSL_SKIP_WRAPPER: "1" do
-      system "bash", libexec/"install.sh", "--keep-existing", "--non-interactive"
-    end
-  end
-
   def caveats
     <<~EOS
-      cc-statusline has been wired up automatically. ~/.claude/settings.json
-      now points at:
+      To wire cc-statusline into Claude Code, run:
+        cc-statusline configure
+
+      That points ~/.claude/settings.json at:
         #{opt_libexec}/statusline.sh
 
-      If you already had a custom statusLine, it was kept. Replace it with:
-        cc-statusline configure --force
+      Use `--keep-existing` to preserve a custom statusLine, or `--force`
+      to replace one.
 
       Edit your preset:
         ~/.config/cc-statusline/config.json
