@@ -1,7 +1,7 @@
 class CcStatuslineCli < Formula
   desc "Configurable statusline command for Claude Code"
   homepage "https://github.com/tenondecrpc/cc-statusline"
-  url "https://github.com/tenondecrpc/cc-statusline/archive/refs/tags/v0.2.4.tar.gz"
+  url "https://github.com/tenondecrpc/cc-statusline/archive/refs/tags/v0.2.11.tar.gz"
   sha256 "59a5e862255a585aa6ad2569b312754c615b15cabd771659cb129bc918d73c85"
   license "MIT"
 
@@ -22,45 +22,73 @@ class CcStatuslineCli < Formula
       cmd="${1:-help}"
       shift 2>/dev/null || true
 
+      forward_to_npm() {
+        local npm_global
+        npm_global="$(npm config get prefix 2>/dev/null || true)"
+        if [ -z "$npm_global" ] && command -v node >/dev/null 2>&1; then
+          npm_global="$(node -e "const p=require('path');const n=process;console.log(n.env.npm_config_prefix || p.resolve(n.execPath,'../../lib/node_modules'))" 2>/dev/null || true)"
+        fi
+        if [ -n "$npm_global" ]; then
+          local js_bin="${npm_global}/lib/node_modules/cc-statusline-cli/bin/cc-statusline.js"
+          if [ -f "$js_bin" ]; then
+            exec node "$js_bin" "$cmd" "$@"
+          fi
+        fi
+      }
+
       case "$cmd" in
         version)
           if [ -f "$LIBEXEC/package.json" ] && command -v jq >/dev/null 2>&1; then
             jq -r '"v" + .version' "$LIBEXEC/package.json"
           else
-            printf 'unknown\\n'
+            printf 'unknown\n'
           fi
           ;;
-        configure)
+        install|configure)
+          forward_to_npm
           CCSL_INSTALL_DIR="$LIBEXEC" CCSL_SKIP_WRAPPER=1 bash "$LIBEXEC/install.sh" "$@"
           ;;
+        render)
+          forward_to_npm
+          exec bash "$LIBEXEC/statusline.sh" </dev/stdin
+          ;;
         update)
-          printf 'Use Homebrew to update:\\n  brew update && brew upgrade cc-statusline-cli\\n' >&2
+          printf 'Use Homebrew to update:\n  brew update && brew upgrade cc-statusline-cli\n' >&2
           exit 1
           ;;
         uninstall)
-          printf 'Use Homebrew to uninstall:\\n  brew uninstall cc-statusline-cli\\n' >&2
-          printf 'Restore the previous statusLine from ~/.claude/settings.json.bak.* or remove the entry manually before uninstalling.\\n' >&2
-          exit 1
+          forward_to_npm
+          if [ -f "$LIBEXEC/uninstall.sh" ]; then
+            bash "$LIBEXEC/uninstall.sh" "$@"
+          else
+            printf 'Use Homebrew to uninstall:\n  brew uninstall cc-statusline-cli\n' >&2
+            printf 'Restore the previous statusLine from ~/.claude/settings.json.bak.* or remove the entry manually before uninstalling.\n' >&2
+          fi
           ;;
         help|--help|-h|"")
           cat <<'HELP'
       Usage: cc-statusline <command> [args]
 
       Commands:
-        configure   wire up ~/.claude/settings.json (forwards args to install.sh)
+        install     configure Claude Code to use cc-statusline
+        configure   alias for install
+        render      read Claude Code session JSON from stdin and render the statusline
         version     show the installed version
         update      points you at 'brew upgrade cc-statusline-cli'
-        uninstall   points you at 'brew uninstall cc-statusline-cli'
+        uninstall   restore settings.json backup and uninstall
         help        show this help
 
       Examples:
-        cc-statusline configure --force
-        cc-statusline configure --keep-existing
+        cc-statusline install --force
+        cc-statusline install --keep-existing
+        cc-statusline uninstall
+        cc-statusline uninstall --purge
       HELP
           ;;
         *)
-          printf 'Unknown command: %s\\n' "$cmd" >&2
-          printf "Run 'cc-statusline help' for usage.\\n" >&2
+          forward_to_npm
+          printf 'Unknown command: %s\n' "$cmd" >&2
+          printf "Run 'cc-statusline help' for usage.\n" >&2
           exit 1
           ;;
       esac
