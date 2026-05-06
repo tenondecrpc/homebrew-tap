@@ -8,7 +8,9 @@ class CcStatuslineCli < Formula
   depends_on "jq"
 
   def install
-    libexec.install "statusline.sh", "install.sh", "uninstall.sh", "package.json", "lib", "presets"
+    libexec.install "statusline.sh", "install.sh", "uninstall.sh", "package.json"
+    (libexec/"lib").install Dir["lib/*"]
+    (libexec/"presets").install Dir["presets/*"]
 
     # Use opt_libexec (stable symlink) so settings.json and the wrapper survive
     # `brew upgrade`, which otherwise leaves them pointing at a version-pinned
