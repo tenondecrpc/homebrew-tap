@@ -1,8 +1,8 @@
 class CcStatuslineCli < Formula
   desc "Configurable statusline command for Claude Code"
   homepage "https://github.com/tenondecrpc/cc-statusline"
-  url "https://github.com/tenondecrpc/cc-statusline/archive/refs/tags/v0.2.11.tar.gz"
-  sha256 "59a5e862255a585aa6ad2569b312754c615b15cabd771659cb129bc918d73c85"
+  url "https://github.com/tenondecrpc/cc-statusline/archive/refs/tags/v0.2.12.tar.gz"
+  sha256 "ab7c3490083393bf76801e3b3363e02c66a322a45691839fc1ab62189085fba7"
   license "MIT"
 
   depends_on "jq"
