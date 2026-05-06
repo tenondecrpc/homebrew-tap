@@ -98,16 +98,28 @@ class CcStatuslineCli < Formula
     chmod 0755, bin/"cc-statusline"
   end
 
+  def post_install
+    # Wire up ~/.claude/settings.json automatically. --keep-existing preserves
+    # a user's custom statusLine; they can replace it with `cc-statusline
+    # configure --force`. CCSL_SKIP_WRAPPER=1 prevents install.sh from creating
+    # its own ~/.local/bin/cc-statusline shim, since brew already owns
+    # bin/cc-statusline. Failures are non-fatal: brew install still succeeds
+    # and the user can run `cc-statusline configure` manually.
+    with_env CCSL_INSTALL_DIR: opt_libexec.to_s, CCSL_SKIP_WRAPPER: "1" do
+      system "bash", libexec/"install.sh", "--keep-existing", "--non-interactive"
+    end
+  end
+
   def caveats
     <<~EOS
-      To wire cc-statusline into Claude Code, run:
-        cc-statusline configure
-
-      That points ~/.claude/settings.json at:
+      cc-statusline has been wired into ~/.claude/settings.json pointing at:
         #{opt_libexec}/statusline.sh
 
-      Use `--keep-existing` to preserve a custom statusLine, or `--force`
-      to replace one.
+      If you already had a custom statusLine, it was kept. Replace it with:
+        cc-statusline configure --force
+
+      If automatic wiring did not run (post-install was skipped), run:
+        cc-statusline configure
 
       Edit your preset:
         ~/.config/cc-statusline/config.json
