@@ -1,14 +1,14 @@
-class CcStatusline < Formula
+class CcStatuslineCli < Formula
   desc "Configurable statusline command for Claude Code"
   homepage "https://github.com/tenondecrpc/cc-statusline"
-  url "https://github.com/tenondecrpc/cc-statusline/archive/refs/tags/v0.2.0.tar.gz"
-  sha256 "58fd147c661ee55921c6bb866c7696e2cf9872ef21ebbfcb0f3a3b4796ba857a"
+  url "https://github.com/tenondecrpc/cc-statusline/archive/refs/tags/v0.2.2.tar.gz"
+  sha256 "716d8082edc91ab0966314319281fa963d31a65a8898c7b3edae15f87910584f"
   license "MIT"
 
   depends_on "jq"
 
   def install
-    libexec.install "statusline.sh", "install.sh", "uninstall.sh", "VERSION", "lib", "presets"
+    libexec.install "statusline.sh", "install.sh", "uninstall.sh", "package.json", "lib", "presets"
 
     # Use opt_libexec (stable symlink) so settings.json and the wrapper survive
     # `brew upgrade`, which otherwise leaves them pointing at a version-pinned
@@ -24,8 +24,8 @@ class CcStatusline < Formula
 
       case "$cmd" in
         version)
-          if [ -f "$LIBEXEC/VERSION" ]; then
-            cat "$LIBEXEC/VERSION"
+          if [ -f "$LIBEXEC/package.json" ] && command -v jq >/dev/null 2>&1; then
+            jq -r '"v" + .version' "$LIBEXEC/package.json"
           else
             printf 'unknown\\n'
           fi
@@ -34,11 +34,11 @@ class CcStatusline < Formula
           CCSL_INSTALL_DIR="$LIBEXEC" CCSL_SKIP_WRAPPER=1 bash "$LIBEXEC/install.sh" "$@"
           ;;
         update)
-          printf 'Use Homebrew to update:\\n  brew update && brew upgrade cc-statusline\\n' >&2
+          printf 'Use Homebrew to update:\\n  brew update && brew upgrade cc-statusline-cli\\n' >&2
           exit 1
           ;;
         uninstall)
-          printf 'Use Homebrew to uninstall:\\n  brew uninstall cc-statusline\\n' >&2
+          printf 'Use Homebrew to uninstall:\\n  brew uninstall cc-statusline-cli\\n' >&2
           printf 'Restore the previous statusLine from ~/.claude/settings.json.bak.* or remove the entry manually before uninstalling.\\n' >&2
           exit 1
           ;;
@@ -49,8 +49,8 @@ class CcStatusline < Formula
       Commands:
         configure   wire up ~/.claude/settings.json (forwards args to install.sh)
         version     show the installed version
-        update      points you at 'brew upgrade cc-statusline'
-        uninstall   points you at 'brew uninstall cc-statusline'
+        update      points you at 'brew upgrade cc-statusline-cli'
+        uninstall   points you at 'brew uninstall cc-statusline-cli'
         help        show this help
 
       Examples:
@@ -90,9 +90,9 @@ class CcStatusline < Formula
       Edit your preset:
         ~/.config/cc-statusline/config.json
 
-      Before `brew uninstall`, restore your previous statusLine from
-      ~/.claude/settings.json.bak.* or delete the statusLine entry manually,
-      otherwise Claude Code will reference a missing script.
+      Before `brew uninstall cc-statusline-cli`, restore your previous
+      statusLine from ~/.claude/settings.json.bak.* or delete the statusLine
+      entry manually, otherwise Claude Code will reference a missing script.
     EOS
   end
 

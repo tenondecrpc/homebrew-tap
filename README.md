@@ -6,7 +6,7 @@ Personal Homebrew tap for [@tenondecrpc](https://github.com/tenondecrpc).
 
 | Formula | Source |
 |---|---|
-| `cc-statusline` | https://github.com/tenondecrpc/cc-statusline |
+| `cc-statusline-cli` | https://github.com/tenondecrpc/cc-statusline |
 
 ## Usage
 
@@ -19,7 +19,7 @@ For example:
 
 ```bash
 brew tap tenondecrpc/tap
-brew install cc-statusline
+brew install cc-statusline-cli
 ```
 
 ## Updating a formula
@@ -59,4 +59,4 @@ Increment the number for each subsequent formula-only fix on the same source ver
 
 ### Authoritative release flow
 
-The full release flow for `cc-statusline`, including the `VERSION` bump and `gh release create` steps in the source repo, is documented in [tenondecrpc/cc-statusline `AGENTS.md` → Cutting a Release](https://github.com/tenondecrpc/cc-statusline/blob/main/AGENTS.md#cutting-a-release).
+The full release flow for `cc-statusline-cli`, including the `package.json` version bump and `gh release create` steps in the source repo, is documented in [tenondecrpc/cc-statusline `AGENTS.md` → Cutting a Release](https://github.com/tenondecrpc/cc-statusline/blob/main/AGENTS.md#cutting-a-release).
