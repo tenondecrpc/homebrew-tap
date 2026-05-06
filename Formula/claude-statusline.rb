@@ -4,17 +4,21 @@ class ClaudeStatusline < Formula
   url "https://github.com/tenondecrpc/claude-statusline/archive/refs/tags/v0.1.1.tar.gz"
   sha256 "e64d9f0d0d6416bde5241e20319c0459f5498b24be570e5987e4771b0b561e8c"
   license "MIT"
+  revision 1
 
   depends_on "jq"
 
   def install
     libexec.install "statusline.sh", "install.sh", "uninstall.sh", "VERSION", "lib", "presets"
 
+    # Use opt_libexec (stable symlink) so settings.json and the wrapper survive
+    # `brew upgrade`, which otherwise leaves them pointing at a version-pinned
+    # Cellar path that disappears on the next install.
     (bin/"claude-statusline").write <<~SCRIPT
       #!/usr/bin/env bash
       set -uo pipefail
 
-      LIBEXEC="#{libexec}"
+      LIBEXEC="#{opt_libexec}"
 
       cmd="${1:-help}"
       shift 2>/dev/null || true
@@ -70,7 +74,7 @@ class ClaudeStatusline < Formula
     # custom statusLine is preserved; they can replace it with `claude-statusline
     # configure --force`. CSL_SKIP_WRAPPER=1 prevents install.sh from creating its own
     # ~/.local/bin/claude-statusline shim, since brew already owns bin/claude-statusline.
-    with_env CSL_INSTALL_DIR: libexec.to_s, CSL_SKIP_WRAPPER: "1" do
+    with_env CSL_INSTALL_DIR: opt_libexec.to_s, CSL_SKIP_WRAPPER: "1" do
       system "bash", libexec/"install.sh", "--keep-existing", "--non-interactive"
     end
   end
@@ -79,7 +83,7 @@ class ClaudeStatusline < Formula
     <<~EOS
       claude-statusline has been wired up automatically. ~/.claude/settings.json
       now points at:
-        #{libexec}/statusline.sh
+        #{opt_libexec}/statusline.sh
 
       If you already had a custom statusLine, it was kept. Replace it with:
         claude-statusline configure --force
