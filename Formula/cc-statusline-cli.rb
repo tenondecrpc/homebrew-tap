@@ -4,6 +4,7 @@ class CcStatuslineCli < Formula
   url "https://github.com/tenondecrpc/cc-statusline/archive/refs/tags/v0.2.12.tar.gz"
   sha256 "ab7c3490083393bf76801e3b3363e02c66a322a45691839fc1ab62189085fba7"
   license "MIT"
+  revision 1
 
   depends_on "jq"
 
