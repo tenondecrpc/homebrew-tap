@@ -1,10 +1,9 @@
-class ClaudeStatusline < Formula
+class CcStatusline < Formula
   desc "Configurable statusline command for Claude Code"
-  homepage "https://github.com/tenondecrpc/claude-statusline"
-  url "https://github.com/tenondecrpc/claude-statusline/archive/refs/tags/v0.1.1.tar.gz"
-  sha256 "e64d9f0d0d6416bde5241e20319c0459f5498b24be570e5987e4771b0b561e8c"
+  homepage "https://github.com/tenondecrpc/cc-statusline"
+  url "https://github.com/tenondecrpc/cc-statusline/archive/refs/tags/v0.2.0.tar.gz"
+  sha256 "58fd147c661ee55921c6bb866c7696e2cf9872ef21ebbfcb0f3a3b4796ba857a"
   license "MIT"
-  revision 1
 
   depends_on "jq"
 
@@ -14,7 +13,7 @@ class ClaudeStatusline < Formula
     # Use opt_libexec (stable symlink) so settings.json and the wrapper survive
     # `brew upgrade`, which otherwise leaves them pointing at a version-pinned
     # Cellar path that disappears on the next install.
-    (bin/"claude-statusline").write <<~SCRIPT
+    (bin/"cc-statusline").write <<~SCRIPT
       #!/usr/bin/env bash
       set -uo pipefail
 
@@ -32,64 +31,64 @@ class ClaudeStatusline < Formula
           fi
           ;;
         configure)
-          CSL_INSTALL_DIR="$LIBEXEC" CSL_SKIP_WRAPPER=1 bash "$LIBEXEC/install.sh" "$@"
+          CCSL_INSTALL_DIR="$LIBEXEC" CCSL_SKIP_WRAPPER=1 bash "$LIBEXEC/install.sh" "$@"
           ;;
         update)
-          printf 'Use Homebrew to update:\\n  brew update && brew upgrade claude-statusline\\n' >&2
+          printf 'Use Homebrew to update:\\n  brew update && brew upgrade cc-statusline\\n' >&2
           exit 1
           ;;
         uninstall)
-          printf 'Use Homebrew to uninstall:\\n  brew uninstall claude-statusline\\n' >&2
+          printf 'Use Homebrew to uninstall:\\n  brew uninstall cc-statusline\\n' >&2
           printf 'Restore the previous statusLine from ~/.claude/settings.json.bak.* or remove the entry manually before uninstalling.\\n' >&2
           exit 1
           ;;
         help|--help|-h|"")
           cat <<'HELP'
-      Usage: claude-statusline <command> [args]
+      Usage: cc-statusline <command> [args]
 
       Commands:
         configure   wire up ~/.claude/settings.json (forwards args to install.sh)
         version     show the installed version
-        update      points you at 'brew upgrade claude-statusline'
-        uninstall   points you at 'brew uninstall claude-statusline'
+        update      points you at 'brew upgrade cc-statusline'
+        uninstall   points you at 'brew uninstall cc-statusline'
         help        show this help
 
       Examples:
-        claude-statusline configure --force
-        claude-statusline configure --keep-existing
+        cc-statusline configure --force
+        cc-statusline configure --keep-existing
       HELP
           ;;
         *)
           printf 'Unknown command: %s\\n' "$cmd" >&2
-          printf "Run 'claude-statusline help' for usage.\\n" >&2
+          printf "Run 'cc-statusline help' for usage.\\n" >&2
           exit 1
           ;;
       esac
     SCRIPT
-    chmod 0755, bin/"claude-statusline"
+    chmod 0755, bin/"cc-statusline"
   end
 
   def post_install
     # Wire up ~/.claude/settings.json automatically. Use --keep-existing so a user's
-    # custom statusLine is preserved; they can replace it with `claude-statusline
-    # configure --force`. CSL_SKIP_WRAPPER=1 prevents install.sh from creating its own
-    # ~/.local/bin/claude-statusline shim, since brew already owns bin/claude-statusline.
-    with_env CSL_INSTALL_DIR: opt_libexec.to_s, CSL_SKIP_WRAPPER: "1" do
+    # custom statusLine is preserved; they can replace it with `cc-statusline
+    # configure --force`. CCSL_SKIP_WRAPPER=1 prevents install.sh from creating its own
+    # ~/.local/bin/cc-statusline shim, since brew already owns bin/cc-statusline.
+    with_env CCSL_INSTALL_DIR: opt_libexec.to_s, CCSL_SKIP_WRAPPER: "1" do
       system "bash", libexec/"install.sh", "--keep-existing", "--non-interactive"
     end
   end
 
   def caveats
     <<~EOS
-      claude-statusline has been wired up automatically. ~/.claude/settings.json
+      cc-statusline has been wired up automatically. ~/.claude/settings.json
       now points at:
         #{opt_libexec}/statusline.sh
 
       If you already had a custom statusLine, it was kept. Replace it with:
-        claude-statusline configure --force
+        cc-statusline configure --force
 
       Edit your preset:
-        ~/.config/claude-statusline/config.json
+        ~/.config/cc-statusline/config.json
 
       Before `brew uninstall`, restore your previous statusLine from
       ~/.claude/settings.json.bak.* or delete the statusLine entry manually,
