@@ -7,6 +7,7 @@ Personal Homebrew tap for [@tenondecrpc](https://github.com/tenondecrpc).
 | Formula | Source |
 |---|---|
 | `cc-statusline-cli` | https://github.com/tenondecrpc/cc-statusline |
+| `arkho-cli` | https://github.com/tenondecrpc/arkho-cli (private - needs a token, see below) |
 
 ## Usage
 
@@ -21,6 +22,26 @@ For example:
 brew tap tenondecrpc/tap
 brew install cc-statusline-cli
 ```
+
+### arkho-cli (private repo)
+
+`arkho-cli` lives in a private repo, so Homebrew needs a GitHub token with read access to
+download the release binary. Export one before installing (the formula reads
+`HOMEBREW_GITHUB_API_TOKEN`):
+
+```bash
+export HOMEBREW_GITHUB_API_TOKEN="$(gh auth token)"   # or a PAT with repo read access
+brew tap tenondecrpc/tap
+brew install arkho-cli
+```
+
+Homebrew may ask you to trust the tap (the formula uses a custom download strategy):
+
+```bash
+brew trust --formula tenondecrpc/tap/arkho-cli
+```
+
+If `arkho-cli` is later made public, the token and trust steps are no longer needed.
 
 ## Updating a formula
 
